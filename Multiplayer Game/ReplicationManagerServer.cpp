@@ -58,7 +58,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 
 
 
-				packet << go->collider->type;
+				packet << go->colliderType;
 
 				packet << go->sprite->textureType;
 

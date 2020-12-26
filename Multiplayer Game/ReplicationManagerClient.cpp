@@ -41,9 +41,9 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 
 
 
-				packet >> newGO->collider->type;
+				packet >> newGO->colliderType;
 
-				switch (newGO->collider->type)
+				switch (newGO->colliderType)
 				{
 				case ColliderType::Player:
 				{

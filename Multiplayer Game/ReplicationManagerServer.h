@@ -2,8 +2,6 @@
 
 // TODO(you): World state replication lab session
 
-
-#pragma once
 #include <list>
 
 enum class ReplicationAction

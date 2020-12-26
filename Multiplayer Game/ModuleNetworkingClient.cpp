@@ -130,6 +130,10 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	else if (state == ClientState::Connected)
 	{
 		// TODO(you): World state replication lab session
+		if (message == ServerMessage::Replication)
+		{
+			replicationManager.Read(packet);
+		}
 
 		if (message == ServerMessage::Welcome)
 		{
