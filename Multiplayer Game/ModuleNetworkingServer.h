@@ -50,6 +50,9 @@ private:
 		std::string name;
 		GameObject *gameObject = nullptr;
 
+		double lastPacketReceivedTime = 0.0f;
+		float secondsSinceLastReplication = 0.0f;
+
 		// TODO(you): UDP virtual connection lab session
 		// TODO(you): World state replication lab session
 		// TODO(you): Reliability on top of UDP lab session

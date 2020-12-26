@@ -131,6 +131,11 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	{
 		// TODO(you): World state replication lab session
 
+		if (message == ServerMessage::Welcome)
+		{
+			replicationManager.Read(packet);
+		}
+
 		// TODO(you): Reliability on top of UDP lab session
 	}
 }

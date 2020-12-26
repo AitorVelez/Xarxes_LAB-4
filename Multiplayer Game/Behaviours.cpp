@@ -83,6 +83,8 @@ void Spaceship::onInput(const InputController &input)
 			laser->sprite->order = 3;
 			laser->sprite->texture = App->modResources->laser;
 
+			laser->sprite->textureType = TEX_LASER;
+
 			Laser *laserBehaviour = App->modBehaviour->addLaser(laser);
 			laserBehaviour->isServer = isServer;
 

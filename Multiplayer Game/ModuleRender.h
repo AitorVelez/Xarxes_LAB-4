@@ -2,16 +2,26 @@
 
 struct Texture;
 
+enum TextureType {
+	TEX_1,
+	TEX_2,
+	TEX_3,
+	TEX_LASER
+};
+
 struct Sprite
 {
 	GameObject *gameObject = nullptr;
 	vec2 pivot = vec2{ 0.5f, 0.5f };             // NOTE(jesus): 0.5 means centered
 	vec4 color = vec4{ 1.0f, 1.0f, 1.0f, 1.0f }; // NOTE(jesus): Color to tint the sprite
 	Texture * texture = nullptr;                 // NOTE(jesus): Texture with the actual image
+	TextureType textureType;
 	int  order = 0;                              // NOTE(jesus): determines the drawing order
 };
 
 const uint8 MAX_ANIMATION_CLIP_FRAMES = 25;
+
+
 
 struct AnimationClip
 {

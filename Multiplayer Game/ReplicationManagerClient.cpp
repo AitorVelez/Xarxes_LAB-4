@@ -59,6 +59,31 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 					break;
 				}
 
+				packet >> newGO->sprite->textureType;
+
+				switch (newGO->sprite->textureType)
+				{
+				case TextureType::TEX_1:
+				{
+					newGO->sprite->texture = App->modResources->spacecraft1;
+					break;
+				}
+				case TextureType::TEX_2:
+				{
+					newGO->sprite->texture = App->modResources->spacecraft2;
+					break;
+				}
+				case TextureType::TEX_3:
+				{
+					newGO->sprite->texture = App->modResources->spacecraft3;
+					break;
+				}
+				case TextureType::TEX_LASER:
+				{
+					newGO->sprite->texture = App->modResources->laser;
+					break;
+				}
+				}
 
 				packet >> newGO->tag;
 
