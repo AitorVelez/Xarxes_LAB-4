@@ -6,123 +6,105 @@
 
 void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 {
-	while (packet.RemainingByteCount() > sizeof(uint32))
+	while (packet.RemainingByteCount() > 0)
 	{
 		uint32 networkId;
 		packet >> networkId;
-		ReplicationAction action;
+		ReplicationAction action = ReplicationAction::None;
 		packet >> action;
 
-		switch (action)
+		if (action == ReplicationAction::Create)
 		{
-		case ReplicationAction::Create:
-		{
-			GameObject* newGO = Instantiate();
+			int tested = 0;
+			packet >> tested;
+			GameObject* newGO = App->modLinkingContext->getNetworkGameObject(networkId);
 
+			bool test = false;
 			if (newGO)
+				test = true;
+
+			newGO = Instantiate();
+
+			if (test == false)
 			{
-				packet >> newGO->position.x;
-				packet >> newGO->position.y;
-
-				packet >> newGO->angle;
-
-				packet >> newGO->sprite->order;
-
-				packet >> newGO->sprite->pivot.x;
-				packet >> newGO->sprite->pivot.y;
-
-				packet >> newGO->size.x;
-				packet >> newGO->size.y;
-
-				packet >> newGO->sprite->color.r;
-				packet >> newGO->sprite->color.g;
-				packet >> newGO->sprite->color.b;
-				packet >> newGO->sprite->color.a;
-
-
-
-				packet >> newGO->colliderType;
-
-				switch (newGO->colliderType)
+				GameObject* newGO_destroy = App->modLinkingContext->getNetworkGameObject(networkId, false);
+				if (newGO_destroy)
 				{
-				case ColliderType::Player:
-				{
-					newGO->collider = App->modCollision->addCollider(ColliderType::Player, newGO);
-					break;
+					App->modLinkingContext->unregisterNetworkGameObject(newGO_destroy);
+					Destroy(newGO_destroy);
 				}
-				case ColliderType::Laser:
-				{
-					newGO->collider = App->modCollision->addCollider(ColliderType::Laser, newGO);
-					break;
-				}
-				default:
-					break;
-				}
-
-				packet >> newGO->sprite->textureType;
-
-				switch (newGO->sprite->textureType)
-				{
-				case TextureType::TEX_1:
-				{
-					newGO->sprite->texture = App->modResources->spacecraft1;
-					break;
-				}
-				case TextureType::TEX_2:
-				{
-					newGO->sprite->texture = App->modResources->spacecraft2;
-					break;
-				}
-				case TextureType::TEX_3:
-				{
-					newGO->sprite->texture = App->modResources->spacecraft3;
-					break;
-				}
-				case TextureType::TEX_LASER:
-				{
-					newGO->sprite->texture = App->modResources->laser;
-					break;
-				}
-				}
-
-				packet >> newGO->tag;
 
 				App->modLinkingContext->registerNetworkGameObjectWithNetworkId(newGO, networkId);
 			}
-			break;
-		}
 
-		case ReplicationAction::Destroy:
-		{
-			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(networkId);
+			packet >> newGO->position.x;
+			packet >> newGO->position.y;
+			packet >> newGO->size.x;
+			packet >> newGO->size.y;
+			packet >> newGO->angle;
 
-			if (gameObject)
+			std::string texture;
+			packet >> texture;
+			newGO->sprite = App->modRender->addSprite(newGO);
+			packet >> newGO->sprite->order;
+			if (newGO->sprite)
 			{
-				App->modLinkingContext->unregisterNetworkGameObject(gameObject);
-				Destroy(gameObject);
+				if (texture == spaceship1)
+					newGO->sprite->texture = App->modResources->spacecraft1;
+				else if (texture == spaceship2)
+					newGO->sprite->texture = App->modResources->spacecraft2;
+				else if (texture == spaceship3)
+					newGO->sprite->texture = App->modResources->spacecraft3;
+				else if (texture == laser)
+					newGO->sprite->texture = App->modResources->laser;
+				else if (texture == explosion)
+				{
+					newGO->sprite->texture = App->modResources->explosion1;
+					newGO->animation = App->modRender->addAnimation(newGO);
+					newGO->animation->clip = App->modResources->explosionClip;
+					App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+				}
 			}
 
-			break;
-		}
+			BehaviourType type;
+			packet >> type;
+			if (type == BehaviourType::Spaceship)
+				newGO->behaviour = App->modBehaviour->addSpaceship(newGO);
+			else if (type == BehaviourType::Laser)
+				newGO->behaviour = App->modBehaviour->addLaser(newGO);
+			packet >> newGO->tag;
 
-		case ReplicationAction::None:
-		{
-			break;
-		}
-
-		case ReplicationAction::Update:
-		{
-			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(networkId);
-
-			if (gameObject)
+			if (test)
 			{
-				packet >> gameObject->position.x;
-				packet >> gameObject->position.y;
-
-				packet >> gameObject->angle;
+				Destroy(newGO);
 			}
-			break;
+			if (tested == 1)
+			{
+				App->modLinkingContext->unregisterNetworkGameObject(newGO);
+				Destroy(newGO);
+			}
 		}
+
+		else if (action == ReplicationAction::Update)
+		{
+			GameObject* newGO = App->modLinkingContext->getNetworkGameObject(networkId);
+			packet >> newGO->position.x;
+			packet >> newGO->position.y;
+			packet >> newGO->size.x;
+			packet >> newGO->size.y;
+			packet >> newGO->angle;
+			if (newGO->behaviour)
+				newGO->behaviour->read(packet);
+		}
+
+		else if (action == ReplicationAction::Destroy)
+		{
+			GameObject* newGO = App->modLinkingContext->getNetworkGameObject(networkId);
+			if (newGO)
+			{
+				App->modLinkingContext->unregisterNetworkGameObject(newGO);
+				Destroy(newGO);
+			}
 		}
 	}
 }

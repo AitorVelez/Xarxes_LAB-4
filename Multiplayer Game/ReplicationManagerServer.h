@@ -1,7 +1,7 @@
 #pragma once
 
 // TODO(you): World state replication lab session
-
+#include <map>
 #include <list>
 
 enum class ReplicationAction
@@ -11,7 +11,7 @@ enum class ReplicationAction
 
 struct ReplicationCommand
 {
-	ReplicationCommand(ReplicationAction action, uint32 id) : action(action), networkId(id) {};
+	//ReplicationCommand(ReplicationAction action, uint32 id) : action(action), networkId(id) {};
 	ReplicationAction action;
 	uint32 networkId;
 };
@@ -26,8 +26,10 @@ public:
 
 	void Write(OutputMemoryStream& packet);
 
+	std::map<uint32, ReplicationAction> commands_map;
+
 public:
-	std::list<ReplicationCommand*> commands;
+	//std::list<ReplicationCommand*> commands;
 
 
 };

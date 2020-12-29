@@ -14,7 +14,7 @@ struct GameObject
 	Animation *animation = nullptr;
 
 	// Collider component
-	ColliderType colliderType;
+	//ColliderType colliderType;
 	Collider *collider = nullptr;
 
 	// "Script" component

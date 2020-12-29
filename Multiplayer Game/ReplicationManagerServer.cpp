@@ -7,94 +7,88 @@ using namespace std;
 
 void ReplicationManagerServer::Create(uint32 networkId)
 {
-	commands.push_back(new ReplicationCommand(ReplicationAction::Create, networkId));
+	//commands.push_back(new ReplicationCommand(ReplicationAction::Create, networkId));
+	commands_map[networkId] = ReplicationAction::Create;
 }
 
 void ReplicationManagerServer::Update(uint32 networkId)
 {
-	commands.push_back(new ReplicationCommand(ReplicationAction::Update, networkId));
+	//commands.push_back(new ReplicationCommand(ReplicationAction::Update, networkId));
+	commands_map[networkId] = ReplicationAction::Update;
 }
 
 void ReplicationManagerServer::Destroy(uint32 networkId)
 {
-	commands.push_back(new ReplicationCommand(ReplicationAction::Destroy, networkId));
+	//commands.push_back(new ReplicationCommand(ReplicationAction::Destroy, networkId));
+	commands_map[networkId] = ReplicationAction::Destroy;
 }
 
 void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 {
 
-	for (list<ReplicationCommand*>::iterator it = commands.begin(); it != commands.end(); ++it)
+	if (commands_map.size() == 0)
+		return;
+	for (std::map<uint32, ReplicationAction>::iterator it = commands_map.begin(); it != commands_map.end(); ++it)
 	{
-		GameObject* go = App->modLinkingContext->getNetworkGameObject((*it)->networkId);
+		packet << (*it).first;
+		packet << (*it).second;
 
-		switch ((*it)->action)
+		if ((*it).second == ReplicationAction::Create)
 		{
-		case ReplicationAction::None:
-			break;
-
-		case ReplicationAction::Create:
-			if (go)
+			GameObject* newGO = App->modLinkingContext->getNetworkGameObject((*it).first, false);
+			if (!newGO)
 			{
-				packet << (*it)->networkId;
-				packet << (*it)->action;
-
-				packet << go->position.x;
-				packet << go->position.y;
-
-				packet << go->angle;
-
-				packet << go->sprite->order;
-
-				packet << go->sprite->pivot.x;
-				packet << go->sprite->pivot.y;
-
-				packet << go->size.x;
-				packet << go->size.y;
-
-				packet << go->sprite->color.r;
-				packet << go->sprite->color.g;
-				packet << go->sprite->color.b;
-				packet << go->sprite->color.a;
-
-
-
-				packet << go->colliderType;
-
-				packet << go->sprite->textureType;
-
-				packet << go->tag;
-
-
+				newGO = Instantiate();
+				newGO->networkId = (*it).first;
+				packet << 1;
 			}
-			break;
-
-		case ReplicationAction::Update:
-			if (go)
+			else
 			{
-				packet << (*it)->networkId;
-				packet << (*it)->action;
-
-				packet << go->position.x;
-				packet << go->position.y;
-				packet << go->angle;
+				packet << 0;
 			}
-			break;
+			packet << newGO->position.x;
+			packet << newGO->position.y;
+			packet << newGO->size.x;
+			packet << newGO->size.y;
+			packet << newGO->angle;
 
-		case ReplicationAction::Destroy:
+			std::string texture = "";
+			if (newGO->sprite)
+			{
+				texture = newGO->sprite->texture->filename;
+				packet << texture;
+				packet << newGO->sprite->order;
+			}
+			else
+			{
+				packet << texture;
+				packet << 0;
+			}
+			if (newGO->behaviour)
+				packet << newGO->behaviour->type();
+			else
+				packet << BehaviourType::None;
 
-			packet << (*it)->networkId;
-			packet << (*it)->action;
-
-			break;
-
-		default:
-			break;
+			packet << newGO->tag;
 		}
 
-		delete* it;
-		*it = nullptr;
+		else if ((*it).second == ReplicationAction::Update)
+		{
+			GameObject* newGO = App->modLinkingContext->getNetworkGameObject((*it).first);
+			packet << newGO->position.x;
+			packet << newGO->position.y;
+			packet << newGO->size.x;
+			packet << newGO->size.y;
+			packet << newGO->angle;
+			if (newGO->behaviour)
+				newGO->behaviour->write(packet);
+		}
+
+		ReplicationCommand commands_map;
+		commands_map.action = (*it).second;
+		commands_map.networkId = (*it).first;
 	}
-	commands.clear();
+	commands_map.clear();
 
 }
 

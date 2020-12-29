@@ -2,12 +2,12 @@
 
 struct Texture;
 
-enum TextureType {
-	TEX_1,
-	TEX_2,
-	TEX_3,
-	TEX_LASER
-};
+//enum TextureType {
+//	TEX_1,
+//	TEX_2,
+//	TEX_3,
+//	TEX_LASER
+//};
 
 struct Sprite
 {
@@ -15,7 +15,7 @@ struct Sprite
 	vec2 pivot = vec2{ 0.5f, 0.5f };             // NOTE(jesus): 0.5 means centered
 	vec4 color = vec4{ 1.0f, 1.0f, 1.0f, 1.0f }; // NOTE(jesus): Color to tint the sprite
 	Texture * texture = nullptr;                 // NOTE(jesus): Texture with the actual image
-	TextureType textureType;
+	//TextureType textureType;
 	int  order = 0;                              // NOTE(jesus): determines the drawing order
 };
 

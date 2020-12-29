@@ -270,7 +270,7 @@ void ModuleNetworkingServer::onUpdate()
 					packet << PROTOCOL_ID;
 					packet << ServerMessage::Replication;
 
-					//clientProxy.replicationManager.Write(packet);
+					clientProxy.replicationManager.Write(packet);
 					sendPacket(packet, clientProxy.address);
 				}
 				
@@ -385,15 +385,15 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	gameObject->sprite->order = 5;
 	if (spaceshipType == 0) {
 		gameObject->sprite->texture = App->modResources->spacecraft1;
-		gameObject->sprite->textureType = TEX_1;
+		//gameObject->sprite->textureType = TEX_1;
 	}
 	else if (spaceshipType == 1) {
 		gameObject->sprite->texture = App->modResources->spacecraft2;
-		gameObject->sprite->textureType = TEX_2;
+		//gameObject->sprite->textureType = TEX_2;
 	}
 	else {
 		gameObject->sprite->texture = App->modResources->spacecraft3;
-		gameObject->sprite->textureType = TEX_3;
+		//gameObject->sprite->textureType = TEX_3;
 	}
 
 	// Create collider
