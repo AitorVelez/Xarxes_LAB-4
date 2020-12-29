@@ -120,6 +120,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
 					float initialAngle = 360.0f * Random.next();
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
+
 				}
 				else
 				{
@@ -190,6 +191,14 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 		}
 
 		// TODO(you): UDP virtual connection lab session
+		else if (message == ClientMessage::Ping)
+		{
+			if (proxy != nullptr)
+			{
+				proxy->secLastPingReceived = 0.0f;
+			}
+		}
+
 	}
 }
 
@@ -216,6 +225,26 @@ void ModuleNetworkingServer::onUpdate()
 			if (clientProxy.connected)
 			{
 				// TODO(you): UDP virtual connection lab session
+				clientProxy.secLastPingReceived += Time.deltaTime;
+
+				if (clientProxy.secLastPingReceived > DISCONNECT_TIMEOUT_SECONDS)
+				{
+					//Disconnect client
+					destroyClientProxy(&clientProxy);
+				}
+
+				clientProxy.secLastPingSent += Time.deltaTime;
+
+				if (clientProxy.secLastPingSent > PING_INTERVAL_SECONDS)
+				{
+					clientProxy.secLastPingSent = 0.0f;
+
+					OutputMemoryStream packet;
+					packet << PROTOCOL_ID;
+					packet << ServerMessage::Ping;
+
+					sendPacket(packet, clientProxy.address);
+				}
 
 				// Don't let the client proxy point to a destroyed game object
 				if (!IsValid(clientProxy.gameObject))
@@ -224,12 +253,26 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				
+				/*
 				OutputMemoryStream packet;
 				packet << ServerMessage::Replication;
 				clientProxy.replicationManager.Write(packet);
 				packet << clientProxy.nextExpectedInputSequenceNumber;
 				sendPacket(packet, clientProxy.address);
+				*/
+				clientProxy.secLastRepSent += Time.deltaTime;
+
+				if (clientProxy.secLastRepSent > 0.05f)
+				{
+					clientProxy.secLastRepSent = 0.0f;
+
+					OutputMemoryStream packet;
+					packet << PROTOCOL_ID;
+					packet << ServerMessage::Replication;
+
+					//clientProxy.replicationManager.Write(packet);
+					sendPacket(packet, clientProxy.address);
+				}
 				
 				// TODO(you): Reliability on top of UDP lab session
 			}
