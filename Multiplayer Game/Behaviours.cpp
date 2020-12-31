@@ -131,7 +131,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				size = 250.0f + 100.0f * Random.next();
 				position = gameObject->position;
 
-				NetworkDestroy(gameObject);
+				//NetworkDestroy(gameObject);
+				App->modNetServer->playerDeath(c1.gameObject);
 			}
 
 			GameObject *explosion = NetworkInstantiate();
@@ -151,6 +152,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			// NOTE(jesus): Only played in the server right now...
 			// You need to somehow make this happen in clients
 			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+
 		}
 	}
 }

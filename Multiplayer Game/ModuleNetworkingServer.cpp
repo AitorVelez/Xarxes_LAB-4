@@ -524,3 +524,19 @@ void NetworkDestroy(GameObject * gameObject, float delaySeconds)
 
 	App->modNetServer->destroyNetworkObject(gameObject, delaySeconds);
 }
+
+void ModuleNetworkingServer::playerDeath(GameObject* go)
+{
+	ClientProxy* proxy = new ClientProxy();
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (clientProxies[i].gameObject == go)
+			proxy = &clientProxies[i];
+	}
+
+	if (proxy)
+	{
+		onConnectionReset(proxy->address);
+	}
+}
