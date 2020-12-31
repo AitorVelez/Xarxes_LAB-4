@@ -4,13 +4,13 @@
 
 Manav Lakhwani
 
-Aitor Vélez
+Aitor VÃ©lez
 
-#Game Name
+# Game Name
 
 No man's ship
 
-#Description 
+# Description 
 
 
 No man's ship is a battle royale game settled in space! Prepare for the fight and choose one of the 3 amazing designs to destroy your enemies!
@@ -23,7 +23,7 @@ Press Down: Move forward
 Press left: Laser
 A-D : Use it to rotate the spaceship.
 
-#List of tasks
+# List of tasks
 
 
 Manav: 
